@@ -1,0 +1,51 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - '2181:2181'
+
+  kafka:
+   image: confluentinc/cp-kafka
+   container_name: kafka
+   depends_on:
+      - zookeeper
+   environment: 
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181      
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+   links:
+      - zookeeper
+   ports:
+      - '9092:9092'
+
+  connector:
+    image: quay.io/debezium/connect
+    ports:
+      - "8083:8083"
+    environment:
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: _connect_configs
+      OFFSET_STORAGE_TOPIC: _connect_offsets
+      STATUS_STORAGE_TOPIC: _connect_status
+      BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+      - kafka
+        
+  postgres:
+    image: debezium/postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=commerce
+    ports:
+      - "5432:5432"
+    command: [ "postgres", "-c", "wal_level=logical" ] ## necessary to tell debezium how to connect to the pg instance and listen to the changes in the write ahead log
+        
