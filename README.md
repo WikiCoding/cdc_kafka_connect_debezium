@@ -21,3 +21,23 @@ Also we will need to add to the psql db the ```decoderbufs``` plugin alongside w
 See:
 https://github.com/debezium/postgres-decoderbufs/blob/main/README.md
 https://debezium.io/documentation/reference/stable/connectors/postgresql.html#installing-postgresql-output-plugin
+
+For the Sink POST body:
+```json
+{
+  "name": "mysql-sink-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector", 
+    "tasks.max": "1",
+    "connection.url": "jdbc:mysql://mysql/commerce",
+    "connection.username": "mysql", 
+    "connection.password": "mysql",
+    "insert.mode": "upsert",
+    "delete.enabled": "true",
+    "primary.key.mode": "record_key",
+    "schema.evolution": "basic",
+    "database.time_zone": "UTC",
+    "topics": "commerce.public.Products"
+  }
+}
+```

@@ -49,3 +49,12 @@ services:
       - "5432:5432"
     command: [ "postgres", "-c", "wal_level=logical" ] ## necessary to tell debezium how to connect to the pg instance and listen to the changes in the write ahead log
         
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=example
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+      - MYSQL_DATABASE=commerce
+    ports:
+      - "3306:3306"
