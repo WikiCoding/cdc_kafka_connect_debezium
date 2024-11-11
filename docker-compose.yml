@@ -6,15 +6,15 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - '2181:2181'
+      - "2181:2181"
 
   kafka:
-   image: confluentinc/cp-kafka
-   container_name: kafka
-   depends_on:
+    image: confluentinc/cp-kafka
+    container_name: kafka
+    depends_on:
       - zookeeper
-   environment: 
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181      
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
@@ -34,7 +34,7 @@ services:
     depends_on:
       - zookeeper
       - kafka
-        
+
   postgres:
     image: debezium/postgres:latest
     environment:
@@ -42,9 +42,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=commerce
     ports:
-      - "5432:5432"
-    command: [ "postgres", "-c", "wal_level=logical" ] ## necessary to tell debezium how to connect to the pg instance and listen to the changes in the write ahead log
-        
+      - "5555:5432"
+    command: ["postgres", "-c", "wal_level=logical"] ## necessary to tell debezium how to connect to the pg instance and listen to the changes in the write ahead log
+
   mysql:
     image: mysql
     environment:
@@ -53,4 +53,4 @@ services:
       - MYSQL_PASSWORD=mysql
       - MYSQL_DATABASE=commerce
     ports:
-      - "3306:3306"
+      - "5306:3306"
