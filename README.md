@@ -24,12 +24,12 @@ Make post request to http://localhost:8083/connectors with the body:
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "database.hostname": "postgres",
-    "database.port": "5555",
+    "database.port": "5432",
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname": "commerce",
     "topic.prefix": "commerce",
-    "table.include.list": "public.Products"
+    "table.include.list": "public.products"
   }
 }
 ```
@@ -52,7 +52,7 @@ postgres:
     - POSTGRES_PASSWORD=postgres
     - POSTGRES_DB=commerce
   ports:
-    - "5432:5432"
+    - "5555:5432"
   command: ["postgres", "-c", "wal_level=logical"]
 ```
 
@@ -67,7 +67,7 @@ mysql:
     - MYSQL_PASSWORD=mysql
     - MYSQL_DATABASE=commerce
   ports:
-    - "3306:3306"
+    - "5306:3306"
 ```
 
 ## Kafka + Zookeeper docker-compose services:
@@ -138,7 +138,7 @@ For the Sink POST body:
     "value.converter.schemas.enable": "true",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
-    "table.name.format": "Products",
+    "table.name.format": "products",
     "transforms": "unwrap",
     "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
     "transforms.unwrap.drop.tombstones": "true",
@@ -155,10 +155,10 @@ For the Sink POST body:
 docker exec -it quay_test-postgres-1 bash
 psql -U postgres
 \c commerce
-CREATE TABLE "Products" (id serial primary key, product_name text);
-INSERT INTO "Products" (product_name) VALUES ('first product');
-UPDATE "Products" SET product_name = 'changed product' WHERE id = 1;
-DELETE FROM "Products" WHERE id = 1;
+CREATE TABLE "products" (id serial primary key, product_name text);
+INSERT INTO "products" (product_name) VALUES ('first product');
+UPDATE "products" SET product_name = 'changed product' WHERE id = 1;
+DELETE FROM "products" WHERE id = 1;
 ```
 
 2. To use mysql in the terminal so we can watch the logs in the connector image:
@@ -167,9 +167,9 @@ DELETE FROM "Products" WHERE id = 1;
 docker exec -it quay_test-mysql-1 bash
 mysql -U mysql -p
 USE commerce;
-CREATE TABLE Products (id INTEGER PRIMARY KEY, product_name VARCHAR(255)); # it will create automatically the table
-SELECT * FROM Products;
-SELECT * FROM commerce_public_Products; # if the table.name: ${topic}
+CREATE TABLE products (id INTEGER PRIMARY KEY, product_name VARCHAR(255)); # it will create automatically the table
+SELECT * FROM products;
+SELECT * FROM commerce_public_products; # if the table.name: ${topic}
 ```
 
 3. When making changes to the PSQL db, will change the wal which Debezium will pick up to publish to the specified topic:
@@ -185,9 +185,17 @@ SELECT * FROM commerce_public_Products; # if the table.name: ${topic}
 ```bash
 docker exec -it kafka bash
 kafka-topics --bootstrap-server localhost:9092 --list
-kafka-console-consumer --bootstrap-server localhost:9092 --topic commerce.public.Products --from-beginning
-kafka-console-producer --bootstrap-server localhost:9092 --topic commerce.public.Products
+kafka-console-consumer --bootstrap-server localhost:9092 --topic commerce.public.products --from-beginning
+kafka-console-producer --bootstrap-server localhost:9092 --topic commerce.public.products
 ```
+
+## See it in action:
+1. You can see this in action with the commerce apps provided.
+2. commerce.commands stands for an application that provides you REST for CREATE, UPDATE and DELETE methods.
+3. commerce.queries stands for an application that provides you REST for GET methods
+4. endpooints:
+ - 4.1. "/products" methods: CREATE, GET
+ - 4.2. "/products/{product-id} methods: UPDATE, DELETE
 
 ## Debezium Kafka Connect REST endpoints:
 
