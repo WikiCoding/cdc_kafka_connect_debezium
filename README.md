@@ -190,7 +190,10 @@ kafka-console-producer --bootstrap-server localhost:9092 --topic commerce.public
 ```
 
 ## See it in action:
-1. You can see this in action with the commerce apps provided.
+1. You can see this in action with the commerce apps provided. 
+  - 1.1. Start the containers with ```docker-compose up -d```
+  - 1.2. Start the apps (some will run migrations and create tables...)
+  - 1.3. Deploy the connectors with the POST requests
 2. commerce.commands stands for an application that provides you REST for CREATE, UPDATE and DELETE methods.
 3. commerce.queries stands for an application that provides you REST for GET methods
 4. endpooints:
